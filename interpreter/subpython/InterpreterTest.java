@@ -1,0 +1,74 @@
+package interpreter.subpython;
+
+
+import static interpreter.subpython.Subpython.hadError;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+
+
+public class InterpreterTest {
+
+    private static int passedTests = 0;
+    private static int totalTests = 0;
+    private static final Interpreter interpreter = new Interpreter();
+    public static void main(String[] args) {
+        String testFilePath = "tests/Artihmetic.txt";
+        runTests(testFilePath);
+    }
+
+    private static void runTests(String filePath) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] test = line.split(",");
+                if (test.length != 2) continue; // Skip invalid lines
+                
+                String expression = test[0].trim();
+                String expectedOutput = test[1].trim();
+
+                if (runTest(expression, expectedOutput)) {
+                    passedTests++;
+                }
+                totalTests++;
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading test file: " + e.getMessage());
+        }
+
+        System.out.println("Tests passed: " + passedTests + " / " + totalTests);
+    }
+
+    private static boolean runTest(String source, String expectedOutput) {
+        hadError = false;
+
+        try {
+            String actualOutput = runAndCaptureOutput(source);
+            if (actualOutput.equals(expectedOutput)) {
+                System.out.println("PASS: " + source + " = " + expectedOutput);
+                return true;
+            } else {
+                System.out.println("FAIL: " + source + ", expected " + expectedOutput + " but got " + actualOutput);
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR: Exception running test for expression: " + source);
+            return false;
+        }
+    }
+
+    private static String runAndCaptureOutput(String source) {
+        Scanner scanner = new Scanner(source);
+        List<Token> tokens = scanner.scanTokens();
+        Expr expression = new Parser(tokens).parse();
+        // Check if there were any errors in scanning/parsing
+        if (hadError) {
+            return "ERROR";
+        }
+
+        // Interpret the expression and capture the output
+        return interpreter.interpreter(expression);
+    }
+
+}

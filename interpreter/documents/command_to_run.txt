@@ -1,0 +1,7 @@
+
+1. to run interpreter
+java .\InterpreterTest.java .\tests\(file name of testing)
+
+2. to generate code of ast classes
+    - Go to tools
+    - java .\GenerateAst.java Expr ..\subpython

@@ -1,9 +1,0 @@
-1. comments
-2. single character 
-3. string 
-4. number -> integer and decimal both
-5. assignemt
-
-
-need to handle :-
-1. remove "\n" from string

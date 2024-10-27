@@ -2,12 +2,12 @@
 
 A Java-based Python to x86 assembly compiler, following the implementation approach from "Crafting Interpreters". Currently in active development with new features being added regularly.
 
-## 🚀 Current Version Features
+## Current Version Features
 
-### ✅ Implemented
+### Implemented
 - arithmetic expression evaluation
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Python-x86/

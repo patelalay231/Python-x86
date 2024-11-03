@@ -1,10 +1,11 @@
 package interpreter.subpython;
 
-
 import static interpreter.subpython.Subpython.hadError;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.List;
 
 
@@ -13,8 +14,9 @@ public class InterpreterTest {
     private static int passedTests = 0;
     private static int totalTests = 0;
     private static final Interpreter interpreter = new Interpreter();
+    
     public static void main(String[] args) {
-        String testFilePath = "tests/Artihmetic.txt";
+        String testFilePath = args[0]; // Fix the typo in the file name
         runTests(testFilePath);
     }
 
@@ -59,16 +61,29 @@ public class InterpreterTest {
     }
 
     private static String runAndCaptureOutput(String source) {
+        // Create a stream to capture output
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out; // Save the original System.out
+
+        // Redirect System.out to the output stream
+        System.setOut(new PrintStream(outputStream));
+
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
-        Expr expression = new Parser(tokens).parse();
+        List<Stmt> statements = new Parser(tokens).parse();
         // Check if there were any errors in scanning/parsing
         if (hadError) {
-            return "ERROR";
+            System.setOut(originalOut); // Restore original System.out
+            return "Error scanning/parsing the expression: " + source;
         }
 
-        // Interpret the expression and capture the output
-        return interpreter.interpreter(expression);
-    }
+        // Interpret the statements
+        interpreter.interpreter(statements);
 
+        // Restore original System.out
+        System.setOut(originalOut);
+
+        // Return the captured output as a string
+        return outputStream.toString().trim();
+    }
 }

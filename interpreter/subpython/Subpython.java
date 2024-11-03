@@ -13,16 +13,17 @@ public class Subpython {
     static boolean hadRuntimeError = false;
 
     public static void main(String[] args) throws IOException {
-        if(args.length > 1){
-            System.err.println("Usage : subpython [script]");
-            System.exit(64);
-        }
-        else if(args.length == 1){
-            runFile(args[0]);
-        }
-        else{
-            runPrompt();
-        }
+        // if(args.length > 1){
+        //     System.err.println("Usage : subpython [script]");
+        //     System.exit(64);
+        // }
+        // else if(args.length == 1){
+        //     runFile(args[0]);
+        // }
+        // else{
+        //     runPrompt();
+        // }
+        runFile("test.py");
     }
 
     private static void runFile(String path) throws IOException{
@@ -48,15 +49,15 @@ public class Subpython {
     public static void run(String source){
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
-        Expr expression = new Parser(tokens).parse();
+
+        List<Stmt> statments = new Parser(tokens).parse();
         if(hadError) return;
         
-        String val = interpreter.interpreter(expression);
-        System.out.println(val);
+        interpreter.interpreter(statments);
         // Print the tokens.
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
+        // for (Token token : tokens) {
+        //     System.out.println(token);
+        // }
 
         // Print the AST.
         // System.out.println(new AstPrinter().print(expression));

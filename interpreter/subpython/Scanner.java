@@ -111,7 +111,10 @@ class Scanner{
             }
             case ' ', '\r', '\t' -> {
             }
-            case '\n' -> line++;
+            case '\n' -> {
+                addToken(NEW_LINE);
+                line++;
+            }
             case '"' -> string();
             default -> {
                 if(isDigit(c)){
@@ -124,8 +127,8 @@ class Scanner{
                     Subpython.error(line, "Unexpected character.");
                 }
             }
-            }
         }
+    }
 
     private boolean isAlpha(char c) {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
@@ -144,7 +147,8 @@ class Scanner{
 
         String text = source.substring(start, current);
         TokenType type = keywords.get(text);
-        if( type == null) type = IDENTIFIER;
+        if ("print".equals(text)) type = PRINT;
+        if(type == null) type = IDENTIFIER;
         addToken(type);
     }
     

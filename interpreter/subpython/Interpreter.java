@@ -1,16 +1,20 @@
 package interpreter.subpython;
 
+import java.util.List;
+
 
 class Interpreter extends RuntimeException { 
 
-    public String interpreter(Expr expression){
+    private Environment environment = new Environment();
+
+    public void interpreter(List<Stmt> statments){
         try{
-            Object value = evaluate(expression);
-            return stringify(value);
+            for(Stmt statement : statments){
+                evaluate(statement);
+            }
         } catch (RuntimeError error){
             Subpython.error(error.token, error.getMessage());
         }
-        return null;
     }
     
     private String stringify(Object object) {
@@ -25,11 +29,58 @@ class Interpreter extends RuntimeException {
         return object.toString();
     }
 
-    public Object evaluate(Expr expr) {
-        return evaluateExpr(expr);
+    public void evaluate(Stmt stmt) {
+        if(stmt instanceof Stmt.Expression expression){
+            evaluateExprStmt(expression.expression);
+        }
+        else if(stmt instanceof Stmt.Print print){
+            evaluatePrintStmt(print.expression);
+        }
+        else if(stmt instanceof Stmt.Assignment assignment){
+            evaluateAssignStmt(assignment);
+        }
+        else if(stmt instanceof Stmt.Block block){
+            evaluateBlockStmt(block,new Environment(environment));
+        }
     }
 
-    private Object evaluateExpr(Expr expr) {
+    private void evaluatePrintStmt(Expr expression) {
+        Object value = evaluateExprStmt(expression);
+        System.out.println(stringify(value));
+    }
+
+    private void evaluateAssignStmt(Stmt.Assignment assignment) {
+        try {
+            Object value = assignment.initializer;
+            if(value != null){
+                value = evaluateExprStmt(assignment.initializer);
+            }
+            environment.define(assignment.name.lexeme, value);
+        } catch (RuntimeError error) {
+            throw new RuntimeError(assignment.name, error.getMessage());
+        }
+    }
+
+    private void evaluateBlockStmt(Stmt.Block block, Environment environment) {
+        Environment previous = this.environment;
+
+        try {
+            this.environment = environment;
+            for (Stmt statement : block.statements) {
+                evaluate(statement);
+            }
+        } finally {
+            this.environment = previous;
+        }
+    }
+
+    private Object evaluateAssignStmt(Expr.Assignment expr) {
+        Object value = evaluateExprStmt(expr.value); // Recursively evaluate RHS
+        environment.define(expr.name.lexeme, value); // Store the evaluated value in environment
+        return value;
+    }
+
+    private Object evaluateExprStmt(Expr expr) {
         switch (expr) {
             case Expr.Binary binary -> {
                 return evaluateBinaryExpr(binary);
@@ -42,6 +93,12 @@ class Interpreter extends RuntimeException {
             }
             case Expr.Unary unary -> {
                 return evaluateUnaryExpr(unary);
+            }
+            case Expr.Variable variable -> {
+                return environment.get(variable.name);
+            }
+            case Expr.Assignment assignment -> {
+                return evaluateAssignStmt(assignment);
             }
             default -> {
                 
@@ -74,11 +131,11 @@ class Interpreter extends RuntimeException {
     }
 
     public Object evaluateGroupingExpr(Expr.Grouping expr) {
-        return evaluateExpr(expr.expression);
+        return evaluateExprStmt(expr.expression);
     }
 
     public Object evaluateUnaryExpr(Expr.Unary expr) {
-        Object right = evaluateExpr(expr.right);
+        Object right = evaluateExprStmt(expr.right);
 
         switch (expr.operator.type) {
             case MINUS -> {
@@ -99,8 +156,8 @@ class Interpreter extends RuntimeException {
     }
 
     public Object evaluateBinaryExpr(Expr.Binary expr){
-        Object left = evaluateExpr(expr.left);
-        Object right = evaluateExpr(expr.right);
+        Object left = evaluateExprStmt(expr.left);
+        Object right = evaluateExprStmt(expr.right);
 
         switch (expr.operator.type){
             case MINUS -> {
@@ -166,7 +223,6 @@ class Interpreter extends RuntimeException {
         }
         return null; // or throw an error if you prefer
     }
-    
     
 
 }

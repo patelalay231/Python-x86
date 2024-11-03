@@ -6,7 +6,7 @@ A Java-based Python to x86 assembly compiler, following the implementation appro
 
 ### Implemented
 - arithmetic expression evaluation
-
+- Variable, Local scoping
 ## Project Structure
 
 ```

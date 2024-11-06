@@ -42,6 +42,22 @@ class Interpreter extends RuntimeException {
         else if(stmt instanceof Stmt.Block block){
             evaluateBlockStmt(block,new Environment(environment));
         }
+        else if(stmt instanceof Stmt.If ifStmt){
+            evaluateIfStmt(ifStmt);
+        }
+    }
+
+    private void evaluateIfStmt(Stmt.If ifStmt) {
+        int conditions = ifStmt.condition.size();
+        for (int i = 0; i < conditions; i++){ 
+            if(isTruthy(evaluateExprStmt(ifStmt.condition.get(i)))){
+                evaluate(ifStmt.thenBranch.get(i));
+                return;
+            }
+        }
+        if(ifStmt.elseBranch != null){
+            evaluate(ifStmt.elseBranch);
+        }
     }
 
     private void evaluatePrintStmt(Expr expression) {
@@ -100,6 +116,9 @@ class Interpreter extends RuntimeException {
             case Expr.Assignment assignment -> {
                 return evaluateAssignStmt(assignment);
             }
+            case Expr.Logical logical -> {
+                return evaluateLogicalExpr(logical);
+            }
             default -> {
                 
             }
@@ -130,6 +149,16 @@ class Interpreter extends RuntimeException {
         return expr.value;
     }
 
+    public Object evaluateLogicalExpr(Expr.Logical expr){
+        Object left = evaluateExprStmt(expr.left);
+
+        if(expr.operator.type == TokenType.OR){
+            if(isTruthy(left)) return left;
+        } else {
+            if(!isTruthy(left)) return left;
+        }
+        return evaluateExprStmt(expr.right);
+    }
     public Object evaluateGroupingExpr(Expr.Grouping expr) {
         return evaluateExprStmt(expr.expression);
     }

@@ -1,15 +1,23 @@
 program      -> stmt* EOF;
 
-stmt         -> exprStmt | printStmt | assignStmt | blockStmt;
+stmt         -> exprStmt | printStmt | assignStmt | ifStmt;
 
-blockStmt    -> LEFT_BRACE stmt* RIGHT_BRACE
+ifStmt       -> IF expression COLON NEW_LINE blockStmt (ELIF expression COLON NEW_LINE blockStmt)* ( ELSE COLON NEW_LINE blockStmt )? ;
+
+blockStmt    ->  INDENT stmt+ DEDENT ;
 
 assignStmt   -> IDENTIFIER "=" expression NEW_LINE+;
+
+
 exprStmt     -> expression NEW_LINE+;
 printStmt    -> PRINT LEFT_PAREN expression RIGHT_PAREN NEW_LINE+;
 
 expression   -> assignment 
-assignment   -> IDENTIFIER "=" assignment | equality ;
+assignment   -> IDENTIFIER "=" assignment | logic_or ;
+
+logic_or     -> logic_and ( OR logic_and)*;
+logic_and    -> equality ( AND equality )*;
+
 equality     -> comparison ( ( "!=" | "==" ) comparison )* ;
 comparison   -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term         -> factor ( ( "-" | "+" ) factor )* ;

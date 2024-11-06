@@ -15,9 +15,12 @@ enum TokenType {
     STAR,          // '*'  - Multiplication operator
     MOD,           // '%'  - Modulus operator
     POW,           // '**' - Exponentiation operator
+    COLON,         // ':'  - Starting a block
+    INDENT,        // '->' - Indicates the start of an indented block
+    DEDENT,        // '<-' - Indicates the end of an indented block
 
     // One or two character tokens.
-    BANG,          // '!'   - Logical negation
+    BANG,          // '!'   - Logical negation (alternative syntax)
     BANG_EQUAL,    // '!='  - Not equal comparison
     EQUAL,         // '='   - Assignment operator
     EQUAL_EQUAL,   // '=='  - Equality comparison
@@ -26,13 +29,26 @@ enum TokenType {
     LESS,          // '<'   - Less-than comparison
     LESS_EQUAL,    // '<='  - Less-than-or-equal comparison
 
+    // Bitwise operators.
+    BITWISE_AND,   // '&'  - Bitwise AND
+    BITWISE_OR,    // '|'  - Bitwise OR
+    BITWISE_XOR,   // '^'  - Bitwise XOR
+    BITWISE_NOT,   // '~'  - Bitwise NOT
+    LEFT_SHIFT,    // '<<' - Left bitwise shift
+    RIGHT_SHIFT,   // '>>' - Right bitwise shift
+
+    // Logical operators.
+    AND,           // 'and' - Logical conjunction
+    OR,            // 'or' - Logical disjunction
+    NOT,           // 'not' - Logical negation
+
     // Literals.
     IDENTIFIER,    // Names for variables, functions, etc.
     STRING,        // String literals enclosed in quotes
     NUMBER,        // Numeric literals (integers or floats)
 
     // Keywords.
-    AND,           // 'and' - Logical conjunction
+    ELIF,          // 'elif' - Part of conditional branches
     ELSE,          // 'else' - Part of conditional branches
     IF,            // 'if' - Start of a conditional
     NONE,          // 'None' - Represents the absence of a value
@@ -40,7 +56,6 @@ enum TokenType {
     FOR,           // 'for' - Starts a loop iterating over items
     RETURN,        // 'return' - Exits a function and returns a value
     PRINT,         // 'print' - Outputs a value
-    OR,            // 'or' - Logical disjunction
     TRUE,          // 'True' - Boolean literal for true
     FALSE,         // 'False' - Boolean literal for false
 

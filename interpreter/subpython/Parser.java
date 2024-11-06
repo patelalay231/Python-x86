@@ -77,31 +77,75 @@ class Parser {
 
     // statement → assignmentStmt | exprStmt | printStmt | blockStmt;
     private Stmt statement() {
+        if (match(NEW_LINE)) {
+            while (match(NEW_LINE)) {}
+        }
+        if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
         if (match(IDENTIFIER) && check(EQUAL)) return assignmentStatement();
-        if (match(LEFT_BRACE)) return new Stmt.Block(blockStmt());
         return expressionStatement();
     }
 
-    // blockStmt    -> LEFT_BRACE stmt* RIGHT_BRACE
-    private List<Stmt> blockStmt(){
-        if (match(NEW_LINE)) {
-            while (match(NEW_LINE)) {}
+    // ifStmt -> IF expression COLON NEW_LINE blockStmt (ELIF expression COLON NEW_LINE blockStmt)* ( ELSE COLON NEW_LINE blockStmt )? ;
+    private Stmt ifStatement() {
+        List<Expr> condition = new ArrayList<>();
+        List<Stmt> thenBranch = new ArrayList<>();
+        condition.add(expression()); // Parse the condition expression
+        consume(COLON, "Expect ':' after 'if' condition.");
+        consume(NEW_LINE, "Expect newline after ':' in if statement.");
+        thenBranch.add(new Stmt.Block(blockStmt()));
+
+        while(match(ELIF)){
+            condition.add(expression());
+            consume(COLON, "Expect ':' after 'if' condition.");
+            consume(NEW_LINE, "Expect newline after ':' in if statement.");
+            if (match(NEW_LINE)) {
+                while (match(NEW_LINE)) {}
+            }
+
+            thenBranch.add(new Stmt.Block(blockStmt()));
+            if (match(NEW_LINE)) {
+                while (match(NEW_LINE)) {}
+            }
+
         }
+
+        // we can storr the List<Stmt> as Stmt type because Stmt.Block is a subclass of Stmt
+        Stmt elseBranch = null;
+        if (match(ELSE)) {
+            consume(COLON, "Expect ':' after 'else'.");
+            consume(NEW_LINE, "Expect newline after ':' in else statement.");
+            if (match(NEW_LINE)) {
+                while (match(NEW_LINE)) {}
+            }
+
+            elseBranch = new Stmt.Block(blockStmt());
+            if (match(NEW_LINE)) {
+                while (match(NEW_LINE)) {}
+            }
+
+        }
+
+        return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+
+    // blockStmt → INDENT statement+ DEDENT ;
+    private List<Stmt> blockStmt() {
         List<Stmt> statements = new ArrayList<>();
 
-        while(!check(RIGHT_BRACE) && !isAtEnd()){
+        consume(INDENT, "Expect indentation to start block.");
+        
+        while (!check(DEDENT) && !isAtEnd()) {
             statements.add(statement());
         }
-        consume(RIGHT_BRACE,  "Expect '}' after block.");
-        if (match(NEW_LINE)) {
-            while (match(NEW_LINE)) {}
-        }
+        
+        consume(DEDENT, "Expect indentation to end block.");
         return statements;
     }
 
 
-    // assignmentStmt → IDENTIFIER "=" expression NEW_LINE* ;
+
+    // assignmentStmt → IDENTIFIER "=" expression NEW_LINE* | logic_or;
     private Stmt assignmentStatement() {
         Token name = previous();
         consume(EQUAL, "Expect '=' after variable name.");
@@ -143,9 +187,9 @@ class Parser {
         return assignment();
     }
 
-    // assignment → IDENTIFIER "=" assignment | equality;
+    // assignment → IDENTIFIER "=" assignment | logic_or ;
     private Expr assignment() {
-        Expr expr = equality();
+        Expr expr = logicOr();
 
         if (match(EQUAL)) {
             Token equals = previous();
@@ -159,6 +203,26 @@ class Parser {
             throw error(equals, "Invalid assignment target.");
         }
 
+        return expr;
+    }
+
+    private Expr logicOr(){
+        Expr expr = logicAnd();
+        while(match(OR)){
+            Token operator = previous();
+            Expr right = logicAnd();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+        return expr;
+    }
+
+    private Expr logicAnd(){
+        Expr expr = equality();
+        while(match(AND)){
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
+        }
         return expr;
     }
 

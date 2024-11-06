@@ -11,6 +11,18 @@ abstract class Stmt {
         }
     }
 
+    static class If extends Stmt {
+        final List<Expr> condition;
+        final List<Stmt> thenBranch;
+        final Stmt elseBranch;
+
+        If(List<Expr> condition, List<Stmt> thenBranch, Stmt elseBranch) {
+            this.condition = condition;
+            this.thenBranch = thenBranch;
+            this.elseBranch = elseBranch;
+        }
+    }
+
     static class Print extends Stmt {
         final Expr expression;
 

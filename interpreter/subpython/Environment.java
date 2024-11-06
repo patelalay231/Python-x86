@@ -18,7 +18,22 @@ class Environment {
 
 
     void define(String name, Object value) {
-        values.put(name, value);
+        Environment scope = findScope(name);
+        if (scope != null) {
+            scope.values.put(name, value);  // Update in the existing scope
+        } else {
+            values.put(name, value);  // Define as new in the current scope
+        }
+    }
+
+    private Environment findScope(String name) {
+        if (values.containsKey(name)) {
+            return this;
+        }
+        if (enclosing != null) {
+            return enclosing.findScope(name);
+        }
+        return null;  // Variable is not defined in any enclosing scope
     }
 
     Object get(Token name) {

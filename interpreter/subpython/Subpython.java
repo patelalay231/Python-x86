@@ -33,7 +33,6 @@ public class Subpython {
         run(content);
     }
 
-    // 
     private static void runPrompt() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);

@@ -1,5 +1,6 @@
 package interpreter.subpython;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -19,6 +20,18 @@ class Interpreter extends RuntimeException {
     
     private String stringify(Object object) {
         if (object == null) return "None";
+        if (object instanceof List<?> listt) {
+            StringBuilder builder = new StringBuilder("[");
+            List<?> list = listt;
+            for (int i = 0; i < list.size(); i++) {
+                builder.append(stringify(list.get(i)));
+                if (i != list.size() - 1) {
+                    builder.append(", ");
+                }
+            }
+            builder.append("]");
+            return builder.toString();
+        }
         if (object instanceof Double) {
             String text = object.toString();
             if (text.endsWith(".0")) {
@@ -44,6 +57,15 @@ class Interpreter extends RuntimeException {
         }
         else if(stmt instanceof Stmt.If ifStmt){
             evaluateIfStmt(ifStmt);
+        }
+        else if(stmt instanceof Stmt.While whileStmt){
+            evaluateWhileStmt(whileStmt);
+        }
+    }
+
+    private void evaluateWhileStmt(Stmt.While whileStmt) {
+        while(isTruthy(evaluateExprStmt(whileStmt.condition))){
+            evaluate(whileStmt.body);
         }
     }
 
@@ -119,6 +141,9 @@ class Interpreter extends RuntimeException {
             case Expr.Logical logical -> {
                 return evaluateLogicalExpr(logical);
             }
+            case Expr.List_ list -> {
+                return evaluateListExpr(list);
+            }
             default -> {
                 
             }
@@ -145,6 +170,16 @@ class Interpreter extends RuntimeException {
     }
 
     // Evaluators
+
+    public Object evaluateListExpr(Expr.List_ expr) {
+        List<Object> evalutedElements = new ArrayList<>();
+
+        for (Expr element : (List<Expr>) expr.elements){
+            evalutedElements.add(evaluateExprStmt(element));
+        }
+        return evalutedElements;
+    }
+
     public Object evaluateLiteralExpr(Expr.Literal expr) {
         return expr.value;
     }

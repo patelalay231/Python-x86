@@ -71,4 +71,12 @@ abstract class Expr {
         }
     }
 
+    static class List_ extends Expr {
+        final List<Expr> elements;
+
+        List_(List<Expr> elements) {
+            this.elements = elements;
+        }
+    }
+
 }

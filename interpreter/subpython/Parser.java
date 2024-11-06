@@ -75,7 +75,7 @@ class Parser {
         return statements;
     }
 
-    // statement → assignmentStmt | exprStmt | printStmt | blockStmt;
+    // statement → assignmentStmt | exprStmt | printStmt | whileStmt | ifStmt ;
     private Stmt statement() {
         if (match(NEW_LINE)) {
             while (match(NEW_LINE)) {}
@@ -83,7 +83,17 @@ class Parser {
         if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
         if (match(IDENTIFIER) && check(EQUAL)) return assignmentStatement();
+        if (match(WHILE)) return whileStatement();
         return expressionStatement();
+    }
+
+    // whileStmt → WHILE expression COLON NEW_LINE blockStmt ;
+    private Stmt whileStatement() {
+        Expr condition = expression();
+        consume(COLON, "Expect ':' after 'while' condition.");
+        consume(NEW_LINE, "Expect newline after ':' in while statement.");
+        Stmt body = new Stmt.Block(blockStmt());
+        return new Stmt.While(condition, body);
     }
 
     // ifStmt -> IF expression COLON NEW_LINE blockStmt (ELIF expression COLON NEW_LINE blockStmt)* ( ELSE COLON NEW_LINE blockStmt )? ;
@@ -182,9 +192,22 @@ class Parser {
         return new Stmt.Expression(expr);
     }
 
-    // expression → assignment ;
+    // expression → assignment | list;
     private Expr expression() {
+        if(match(LEFT_BRACKET)) return list();
         return assignment();
+    }
+
+    // list -> LEFT_BRACKET ( expression (COMMA expression)* )? RIGHT_BRACKET;
+    private Expr list(){
+        List<Expr> elements = new ArrayList<>();
+        if(!check(RIGHT_BRACKET)){
+            do{
+                elements.add(expression());
+            } while(match(COMMA));
+        }
+        consume(RIGHT_BRACKET, "Expect ']' after list elements.");
+        return new Expr.List_(elements);
     }
 
     // assignment → IDENTIFIER "=" assignment | logic_or ;

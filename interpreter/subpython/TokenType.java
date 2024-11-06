@@ -4,6 +4,8 @@ enum TokenType {
     // Single-character tokens.
     LEFT_PAREN,    // '('  - Opens a grouping or function call
     RIGHT_PAREN,   // ')'  - Closes a grouping or function call
+    LEFT_BRACKET,  // '['  - Opens a list
+    RIGHT_BRACKET, // ']'  - Closes a list
     LEFT_BRACE,    // '{'  - Opens a block or scope
     RIGHT_BRACE,   // '}'  - Closes a block or scope
     COMMA,         // ','  - Separator in argument lists
@@ -54,6 +56,7 @@ enum TokenType {
     NONE,          // 'None' - Represents the absence of a value
     WHILE,         // 'while' - Starts a loop with a condition
     FOR,           // 'for' - Starts a loop iterating over items
+    IN,            // 'in' - Used to iterate over items in a collection
     RETURN,        // 'return' - Exits a function and returns a value
     PRINT,         // 'print' - Outputs a value
     TRUE,          // 'True' - Boolean literal for true

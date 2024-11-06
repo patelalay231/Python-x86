@@ -49,4 +49,14 @@ abstract class Stmt {
         }
     }
 
+    static class While extends Stmt {
+        final Expr condition;
+        final Stmt body;
+
+        While(Expr condition, Stmt body) {
+            this.condition = condition;
+            this.body = body;
+        }
+    }
+
 }

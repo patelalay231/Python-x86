@@ -1,27 +1,37 @@
 program      -> stmt* EOF;
 
-stmt         -> exprStmt | printStmt | assignStmt | ifStmt;
+stmt         -> exprStmt | printStmt | assignStmt | ifStmt | whileStmt | forStmt;
 
-ifStmt       -> IF expression COLON NEW_LINE blockStmt (ELIF expression COLON NEW_LINE blockStmt)* ( ELSE COLON NEW_LINE blockStmt )? ;
+ifStmt       -> IF expression COLON NEW_LINE blockStmt (ELIF expression COLON NEW_LINE blockStmt)* ( ELSE COLON NEW_LINE blockStmt )?;
 
-blockStmt    ->  INDENT stmt+ DEDENT ;
+whileStmt    -> WHILE expression COLON NEW_LINE blockStmt;
+
+
+blockStmt    -> INDENT stmt+ DEDENT;
 
 assignStmt   -> IDENTIFIER "=" expression NEW_LINE+;
-
 
 exprStmt     -> expression NEW_LINE+;
 printStmt    -> PRINT LEFT_PAREN expression RIGHT_PAREN NEW_LINE+;
 
-expression   -> assignment 
-assignment   -> IDENTIFIER "=" assignment | logic_or ;
+expression   -> assignment | list;
 
-logic_or     -> logic_and ( OR logic_and)*;
-logic_and    -> equality ( AND equality )*;
+list         -> LEFT_BRACKET (expression (COMMA expression)* )? RIGHT_BRACKET;
 
-equality     -> comparison ( ( "!=" | "==" ) comparison )* ;
-comparison   -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-term         -> factor ( ( "-" | "+" ) factor )* ;
-factor       -> unary ( ( "/" | "*" ) unary )* ;
-unary        -> ( "!" | "-" ) unary | pow ;
-pow          -> primary ( "^" pow )* ;
-primary      -> NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER | "(" expression ")" ;
+assignment   -> IDENTIFIER "=" assignment | logic_or;
+
+logic_or     -> logic_and (OR logic_and)*;
+logic_and    -> equality (AND equality)*;
+
+equality     -> comparison (("!=" | "==") comparison)*;
+comparison   -> term ((">" | ">=" | "<" | "<=") term)*;
+term         -> factor (("-" | "+") factor)*;
+factor       -> unary (("/" | "*") unary)*;
+unary        -> ("!" | "-" ) unary | pow;
+
+pow          -> primary ("^" pow)*;
+primary      -> NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER | "(" expression ")";
+
+todo:-
+logical not
+accesing values of list

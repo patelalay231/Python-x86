@@ -1,7 +1,5 @@
-x = 1
+a = [1,2,3,4,5]
+s = "Hello World"
+print(a[0:4:2])
 
-for x in range(7,10,2):
-    print(x)
-    print("Hello")
-    for y in range(1,x):
-        print(y)
+print(s[0:8:1])

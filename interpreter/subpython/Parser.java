@@ -346,7 +346,7 @@ class Parser {
         return expr;
     }
 
-    // primary → NUMBER | STRING | "false" | "true" | "None" | "(" expression ")" ;
+    // primary -> NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER ( LEFT_BRACKET expression RIGHT_BRACKET )?; | LEFT_PAREN expression RIGHT_PAREN;
     private Expr primary() {
         if (match(FALSE)) return new Expr.Literal(false);
         if (match(TRUE)) return new Expr.Literal(true);
@@ -363,7 +363,22 @@ class Parser {
         }
 
         if (match(IDENTIFIER)) {
-            return new Expr.Variable(previous());
+            // store identifier name
+            Token identifier = previous();
+            if (match(LEFT_BRACKET)) {
+                Expr start = expression();
+                Expr end = null;
+                Expr step = null;
+                if(match(COLON)){
+                    end = expression();
+                    if(match(COLON)){
+                        step = expression();
+                    }
+                }
+                consume(RIGHT_BRACKET, "Expect ']' after list index.");
+                return new Expr.Index(identifier, start, end, step);
+            }
+            return new Expr.Variable(identifier);
         }
 
         throw error(peek(), "Expect expression.");

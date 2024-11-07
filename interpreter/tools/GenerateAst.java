@@ -21,7 +21,8 @@ public class GenerateAst {
             "Assignment   : Token name, Expr value",
             "Variable : Token name",
             "Logical  : Expr left, Token operator, Expr right",
-            "List_    : List<Expr> elements"
+            "List_    : List<Expr> elements",
+            "Index    : Token identifier, Expr start, Expr end, Expr step"
         ));
 
         defineAst(outputDir, "Stmt", Arrays.asList(

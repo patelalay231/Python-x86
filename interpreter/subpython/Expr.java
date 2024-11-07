@@ -79,4 +79,18 @@ abstract class Expr {
         }
     }
 
+    static class Index extends Expr {
+        final Token identifier;
+        final Expr start;
+        final Expr end;
+        final Expr step;
+
+        Index(Token identifier, Expr start, Expr end, Expr step) {
+            this.identifier = identifier;
+            this.start = start;
+            this.end = end;
+            this.step = step;
+        }
+    }
+
 }

@@ -31,7 +31,7 @@ factor       -> unary (("/" | "*") unary)*;
 unary        -> ("!" | "-" ) unary | pow;
 
 pow          -> primary ("^" pow)*;
-primary      -> NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER | "(" expression ")";
+primary      -> NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER ( LEFT_BRACKET expression RIGHT_BRACKET )?; | LEFT_PAREN expression RIGHT_PAREN;
 
 todo:-
 logical not

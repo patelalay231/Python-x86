@@ -174,6 +174,9 @@ class Interpreter extends RuntimeException {
             case Expr.List_ list -> {
                 return evaluateListExpr(list);
             }
+            case Expr.Index index -> {
+                return evaluateIndexExpr(index);
+            }
             default -> {
                 
             }
@@ -200,6 +203,54 @@ class Interpreter extends RuntimeException {
     }
 
     // Evaluators
+
+    private Object evaluateIndexExpr(Expr.Index expr){
+        Object value = environment.get(expr.identifier);
+        
+        if(!(value instanceof List<?> || value instanceof String)){
+            throw new RuntimeError(expr.identifier, "Only lists and strings can be indexed.");
+        }
+        
+        Object start = evaluateExprStmt(expr.start);
+        Object end = expr.end == null ? null : evaluateExprStmt(expr.end);
+        Object step = expr.step == null ? 1.0 : evaluateExprStmt(expr.step);
+
+        // Ensure that start, end, and step are numeric
+        if (!(start instanceof Double) || (end != null && !(end instanceof Double)) || !(step instanceof Double)) {
+            throw new RuntimeError(expr.identifier, "Start, end, and step values must be numbers.");
+        }
+
+        int startIndex = ((Double) start).intValue();
+        int endIndex = end == null ? startIndex+1 : ((Double) end).intValue();
+        int stepValue = ((Double) step).intValue();
+
+        if(value instanceof List<?> list){
+            int size = list.size();
+            if(startIndex < 0 || startIndex >= size || endIndex > size){
+                throw new RuntimeError(expr.identifier, "Index out of bounds.");
+            }
+            List<Object> subList = new ArrayList<>();
+            for (int i = startIndex; i < endIndex; i += stepValue){
+                subList.add(list.get(i));
+            }
+            if(subList.size() == 1){
+                return subList.get(0);
+            }
+            return subList;
+        }
+        else if(value instanceof String string){
+            int size = string.length();
+            if(startIndex < 0 || startIndex >= size || endIndex > size){
+                throw new RuntimeError(expr.identifier, "Index out of bounds.");
+            }
+            StringBuilder subString = new StringBuilder();
+            for (int i = startIndex; i < endIndex; i += stepValue){
+                subString.append(string.charAt(i));
+            }
+            return subString.toString();
+        }
+        return null;
+    }
 
     public Object evaluateListExpr(Expr.List_ expr) {
         List<Object> evalutedElements = new ArrayList<>();

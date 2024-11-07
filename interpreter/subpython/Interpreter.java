@@ -64,6 +64,31 @@ class Interpreter extends RuntimeException {
         else if(stmt instanceof Stmt.For forStmt){
             evaluateForStmt(forStmt);
         }
+        else if(stmt instanceof Stmt.ForIterable forIterable){
+            evaluateForIterable(forIterable);
+        }
+    }
+
+    private void evaluateForIterable(Stmt.ForIterable forIterableStmt){
+        Object iterable = evaluateExprStmt(forIterableStmt.iterable);
+        String name = forIterableStmt.name.lexeme;
+
+        if(!(iterable instanceof List<?> || iterable instanceof String)){
+            throw new RuntimeError(forIterableStmt.name, "Only lists and strings can be iterated over.");
+        }
+
+        if(iterable instanceof List<?> list){
+            for (Object element : list){
+                environment.define(name, element);
+                evaluate(forIterableStmt.body);
+            }
+        }
+        else if(iterable instanceof String string){
+            for (int i = 0; i < string.length(); i++){
+                environment.define(name, string.charAt(i));
+                evaluate(forIterableStmt.body);
+            }
+        }
     }
 
     private void evaluateForStmt(Stmt.For forStmt){

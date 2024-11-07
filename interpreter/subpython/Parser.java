@@ -97,26 +97,40 @@ class Parser {
         return new Stmt.While(condition, body);
     }
 
-    // forStmt -> FOR IDENTIFIER IN RANGE LEFT_PAREN expression (COMMA expression (COMMA expression)?)? RIGHT_PAREN blockStmt;
+    // forStmt -> FOR IDENTIFIER IN (expression | RANGE LEFT_PAREN expression (COMMA expression (COMMA expression)?)? RIGHT_PAREN ) COLON blockStmt;
     private Stmt forStatement(){
         Token name = consume(IDENTIFIER, "Expect variable name after 'for'.");
         consume(IN, "Expect 'in' after variable name.");
-        consume(RANGE, "Expect 'range' after 'in'.");
-        consume(LEFT_PAREN, "Expect '(' after 'range'.");
-        Expr start = expression();
-        Expr end = null;
-        Expr step = null;
-        if(match(COMMA)){
-            end = expression();
+        if(match(RANGE)){
+            consume(LEFT_PAREN, "Expect '(' after 'range'.");
+            Expr start = expression();
+            Expr end = null;
+            Expr step = null;
             if(match(COMMA)){
-                step = expression();
+                end = expression();
+                if(match(COMMA)){
+                    step = expression();
+                }
             }
+            consume(RIGHT_PAREN, "Expect ')' after range arguments.");
+            consume(COLON, "Expect ':' after 'for' statement.");
+            consume(NEW_LINE, "Expect newline after ':' in for statement.");
+            if(match(NEW_LINE)) {
+                while (match(NEW_LINE)) {}
+            }
+            Stmt body = new Stmt.Block(blockStmt());
+            return new Stmt.For(name, start, end, step, body);
         }
-        consume(RIGHT_PAREN, "Expect ')' after range arguments.");
-        consume(COLON, "Expect ':' after 'for' statement.");
-        consume(NEW_LINE, "Expect newline after ':' in for statement.");
-        Stmt body = new Stmt.Block(blockStmt());
-        return new Stmt.For(name, start, end, step, body);
+        else{
+            Expr iterable = expression();
+            consume(COLON, "Expect ':' after 'for' statement.");
+            consume(NEW_LINE, "Expect newline after ':' in for statement.");
+            if(match(NEW_LINE)) {
+                while (match(NEW_LINE)) {}
+            }
+            Stmt body = new Stmt.Block(blockStmt());
+            return new Stmt.ForIterable(name, iterable, body);
+        }
     }
 
 

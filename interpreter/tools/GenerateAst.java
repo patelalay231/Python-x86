@@ -32,7 +32,8 @@ public class GenerateAst {
             "Assignment : Token name, Expr initializer",
             "Block      : List<Stmt> statements",
             "While      : Expr condition, Stmt body",
-            "For        : Token name, Expr start, Expr end, Expr step, Stmt body"
+            "For        : Token name, Expr start, Expr end, Expr step, Stmt body",
+            "ForIterable : Token name, Expr iterable, Stmt body"
         ));
     }
 

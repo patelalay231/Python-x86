@@ -75,4 +75,16 @@ abstract class Stmt {
         }
     }
 
+    static class ForIterable extends Stmt {
+        final Token name;
+        final Expr iterable;
+        final Stmt body;
+
+        ForIterable(Token name, Expr iterable, Stmt body) {
+            this.name = name;
+            this.iterable = iterable;
+            this.body = body;
+        }
+    }
+
 }

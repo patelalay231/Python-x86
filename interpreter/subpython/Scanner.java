@@ -34,6 +34,7 @@ class Scanner {
         keywords.put("elif", ELIF);
         keywords.put("while", WHILE);
         keywords.put("in", IN);
+        keywords.put("range", RANGE);
     }
 
     Scanner(String source) {

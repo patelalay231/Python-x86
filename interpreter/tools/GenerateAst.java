@@ -21,7 +21,7 @@ public class GenerateAst {
             "Assignment   : Token name, Expr value",
             "Variable : Token name",
             "Logical  : Expr left, Token operator, Expr right",
-            "List_     : List<Expr> elements"
+            "List_    : List<Expr> elements"
         ));
 
         defineAst(outputDir, "Stmt", Arrays.asList(
@@ -30,7 +30,8 @@ public class GenerateAst {
             "Print      : Expr expression",
             "Assignment : Token name, Expr initializer",
             "Block      : List<Stmt> statements",
-            "While      : Expr condition, Stmt body"
+            "While      : Expr condition, Stmt body",
+            "For        : Token name, Expr start, Expr end, Expr step, Stmt body"
         ));
     }
 

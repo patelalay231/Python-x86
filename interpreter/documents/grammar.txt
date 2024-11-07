@@ -6,6 +6,7 @@ ifStmt       -> IF expression COLON NEW_LINE blockStmt (ELIF expression COLON NE
 
 whileStmt    -> WHILE expression COLON NEW_LINE blockStmt;
 
+forStmt      -> FOR IDENTIFIER IN RANGE LEFT_PAREN expression (COMMA expression (COMMA expression)?)? RIGHT_PAREN blockStmt;
 
 blockStmt    -> INDENT stmt+ DEDENT;
 

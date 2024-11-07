@@ -1,4 +1,7 @@
 x = 1
-while(x < 10):
+
+for x in range(7,10,2):
     print(x)
-    x = x + 1
+    print("Hello")
+    for y in range(1,x):
+        print(y)

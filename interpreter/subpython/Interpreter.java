@@ -61,6 +61,36 @@ class Interpreter extends RuntimeException {
         else if(stmt instanceof Stmt.While whileStmt){
             evaluateWhileStmt(whileStmt);
         }
+        else if(stmt instanceof Stmt.For forStmt){
+            evaluateForStmt(forStmt);
+        }
+    }
+
+    private void evaluateForStmt(Stmt.For forStmt){
+        Object start = forStmt.start;
+        Object end = forStmt.end;
+        Object step = forStmt.step;
+        if(start != null && end != null){
+            start = evaluateExprStmt(forStmt.start);
+            end = evaluateExprStmt(forStmt.end);
+        }
+        if(end == null){
+            end = evaluateExprStmt(forStmt.start);
+            start = 0.0;
+        }
+        if(step == null){
+            step = 1.0;
+        }
+        else{
+            step = evaluateExprStmt(forStmt.step);
+        }
+        
+        String name = forStmt.name.lexeme;
+
+        for (double i = (double) start; i < (double) end; i += (double) step){
+            environment.define(name, i);
+            evaluate(forStmt.body);
+        }
     }
 
     private void evaluateWhileStmt(Stmt.While whileStmt) {

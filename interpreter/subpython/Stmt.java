@@ -59,4 +59,20 @@ abstract class Stmt {
         }
     }
 
+    static class For extends Stmt {
+        final Token name;
+        final Expr start;
+        final Expr end;
+        final Expr step;
+        final Stmt body;
+
+        For(Token name, Expr start, Expr end, Expr step, Stmt body) {
+            this.name = name;
+            this.start = start;
+            this.end = end;
+            this.step = step;
+            this.body = body;
+        }
+    }
+
 }

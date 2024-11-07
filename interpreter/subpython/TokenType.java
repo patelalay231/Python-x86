@@ -57,6 +57,7 @@ enum TokenType {
     WHILE,         // 'while' - Starts a loop with a condition
     FOR,           // 'for' - Starts a loop iterating over items
     IN,            // 'in' - Used to iterate over items in a collection
+    RANGE,         // 'range' - Generates a sequence of numbers
     RETURN,        // 'return' - Exits a function and returns a value
     PRINT,         // 'print' - Outputs a value
     TRUE,          // 'True' - Boolean literal for true

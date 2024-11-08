@@ -28,6 +28,11 @@ class Parser {
         return peek().type == type;
     }
 
+    private boolean checkNext(TokenType type) {
+        if (current + 1 >= tokens.size()) return false;
+        return tokens.get(current + 1).type == type;
+    }
+
     private Token advance() {
         if (!isAtEnd()) current++;
         return previous();
@@ -75,17 +80,46 @@ class Parser {
         return statements;
     }
 
-    // statement → assignmentStmt | exprStmt | printStmt | whileStmt | ifStmt ;
+    // statement → assignmentStmt | exprStmt | printStmt | whileStmt | ifStmt | functionStmt;
     private Stmt statement() {
         if (match(NEW_LINE)) {
             while (match(NEW_LINE)) {}
         }
         if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
-        if (match(IDENTIFIER) && check(EQUAL)) return assignmentStatement();
+        if (checkNext(EQUAL) && match(IDENTIFIER)) return assignmentStatement();
         if (match(WHILE)) return whileStatement();
         if (match(FOR)) return forStatement();
+        if (match(DEF)) return functionStatement();
+        if (match(RETURN)) return returnStatement();
         return expressionStatement();
+    }
+
+    // returnStmt → RETURN expression NEW_LINE* ;
+    private Stmt returnStatement() {
+        Expr value = expression();
+        if (match(NEW_LINE)) {
+            while (match(NEW_LINE)) {}
+        }
+        return new Stmt.Return(value);
+    }
+
+    // functionStmt → DEF IDENTIFIER LEFT_PAREN parameters? RIGHT_PAREN COLON NEW_LINE blockStmt ;
+    private Stmt functionStatement() {
+        Token name = consume(IDENTIFIER, "Expect function name.");
+        consume(LEFT_PAREN, "Expect '(' after function name.");
+        List<Token> parameters = new ArrayList<>();
+        // Parsing parameters
+        if (!check(RIGHT_PAREN)) {
+            do {
+                parameters.add(consume(IDENTIFIER, "Expect parameter name."));
+            } while (match(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.");
+        consume(COLON, "Expect ':' after function declaration.");
+        consume(NEW_LINE, "Expect newline after ':' in function declaration.");
+        List<Stmt> body = blockStmt();
+        return new Stmt.Function(name, parameters, body);
     }
 
     // whileStmt → WHILE expression COLON NEW_LINE blockStmt ;
@@ -360,7 +394,7 @@ class Parser {
         return expr;
     }
 
-    // primary -> NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER ( LEFT_BRACKET expression RIGHT_BRACKET )?; | LEFT_PAREN expression RIGHT_PAREN;
+    // primary -> NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER ( LEFT_BRACKET expression RIGHT_BRACKET | LEFT_PAREN arguments? RIGHT_PAREN)?; | LEFT_PAREN expression RIGHT_PAREN;
     private Expr primary() {
         if (match(FALSE)) return new Expr.Literal(false);
         if (match(TRUE)) return new Expr.Literal(true);
@@ -391,6 +425,16 @@ class Parser {
                 }
                 consume(RIGHT_BRACKET, "Expect ']' after list index.");
                 return new Expr.Index(identifier, start, end, step);
+            }
+            if (match(LEFT_PAREN)) {
+                List<Expr> arguments = new ArrayList<>();
+                if (!check(RIGHT_PAREN)) {
+                    do {
+                        arguments.add(expression());
+                    } while (match(COMMA));
+                }
+                consume(RIGHT_PAREN, "Expect ')' after arguments.");
+                return new Expr.Call(identifier, arguments);
             }
             return new Expr.Variable(identifier);
         }

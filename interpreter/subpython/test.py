@@ -1,4 +1,15 @@
-s = "hello"
-x = [1,2,3,4,5,5]
-for i in x:
-    print(i)
+
+
+def fun(a,b):
+    if a>b:
+        return True
+    return False
+
+
+a = 111
+b = 222
+
+if fun(a,b):
+    print("a>b")
+else:
+    print("a<=b")

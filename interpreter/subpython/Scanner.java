@@ -35,6 +35,7 @@ class Scanner {
         keywords.put("while", WHILE);
         keywords.put("in", IN);
         keywords.put("range", RANGE);
+        keywords.put("def", DEF);
     }
 
     Scanner(String source) {

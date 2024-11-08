@@ -87,4 +87,24 @@ abstract class Stmt {
         }
     }
 
+    static class Function extends Stmt {
+        final Token name;
+        final List<Token> params;
+        final List<Stmt> body;
+
+        Function(Token name, List<Token> params, List<Stmt> body) {
+            this.name = name;
+            this.params = params;
+            this.body = body;
+        }
+    }
+
+    static class Return extends Stmt {
+        final Expr value;
+
+        Return(Expr value) {
+            this.value = value;
+        }
+    }
+
 }

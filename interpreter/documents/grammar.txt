@@ -1,6 +1,12 @@
 program      -> stmt* EOF;
 
-stmt         -> exprStmt | printStmt | assignStmt | ifStmt | whileStmt | forStmt;
+stmt         -> exprStmt | printStmt | assignStmt | ifStmt | whileStmt | forStmt | funcStmt | returnStmt;
+
+returnStmt   -> RETURN expression? NEW_LINE;
+
+funcStmt     -> def IDENTIFIER LEFT_PAREN parameters? RIGHT_PAREN : NEW_LINE blockStmt;
+
+parameters   -> IDENTIFIER ( COMMA IDENTIFIER );
 
 ifStmt       -> IF expression COLON NEW_LINE blockStmt (ELIF expression COLON NEW_LINE blockStmt)* ( ELSE COLON NEW_LINE blockStmt )?;
 
@@ -31,8 +37,7 @@ factor       -> unary (("/" | "*") unary)*;
 unary        -> ("!" | "-" ) unary | pow;
 
 pow          -> primary ("^" pow)*;
-primary      -> NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER ( LEFT_BRACKET expression RIGHT_BRACKET )?; | LEFT_PAREN expression RIGHT_PAREN;
+primary      -> NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER ( LEFT_BRACKET expression RIGHT_BRACKET | LEFT_PAREN arguments? RIGHT_PAREN)?; | LEFT_PAREN expression RIGHT_PAREN;
 
-todo:-
-logical not
-accesing values of list
+arguments    -> expression ( comma expression)*;
+

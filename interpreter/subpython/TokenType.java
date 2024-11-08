@@ -62,6 +62,7 @@ enum TokenType {
     PRINT,         // 'print' - Outputs a value
     TRUE,          // 'True' - Boolean literal for true
     FALSE,         // 'False' - Boolean literal for false
+    DEF,           // 'def' - Starts a function definition
 
     // End of file token.
     EOF            // Signifies the end of the input

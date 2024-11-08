@@ -22,7 +22,8 @@ public class GenerateAst {
             "Variable : Token name",
             "Logical  : Expr left, Token operator, Expr right",
             "List_    : List<Expr> elements",
-            "Index    : Token identifier, Expr start, Expr end, Expr step"
+            "Index    : Token identifier, Expr start, Expr end, Expr step",
+            "Call     : Token identifier, List<Expr> arguments"
         ));
 
         defineAst(outputDir, "Stmt", Arrays.asList(
@@ -33,7 +34,9 @@ public class GenerateAst {
             "Block      : List<Stmt> statements",
             "While      : Expr condition, Stmt body",
             "For        : Token name, Expr start, Expr end, Expr step, Stmt body",
-            "ForIterable : Token name, Expr iterable, Stmt body"
+            "ForIterable : Token name, Expr iterable, Stmt body",
+            "Function   : Token name, List<Token> params, List<Stmt> body",
+            "Return     : Expr value"
         ));
     }
 

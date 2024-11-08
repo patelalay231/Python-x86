@@ -93,4 +93,14 @@ abstract class Expr {
         }
     }
 
+    static class Call extends Expr {
+        final Token identifier;
+        final List<Expr> arguments;
+
+        Call(Token identifier, List<Expr> arguments) {
+            this.identifier = identifier;
+            this.arguments = arguments;
+        }
+    }
+
 }

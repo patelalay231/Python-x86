@@ -67,6 +67,24 @@ class Interpreter extends RuntimeException {
         else if(stmt instanceof Stmt.ForIterable forIterable){
             evaluateForIterable(forIterable);
         }
+        else if(stmt instanceof Stmt.Function function){
+            evaluateFunctionStmt(function);
+        }
+        else if(stmt instanceof Stmt.Return returnStmt){
+            evaluateReturnStmt(returnStmt);
+        }
+    }
+
+    private void evaluateReturnStmt(Stmt.Return returnStmt) {
+        Object value = null;
+        if(returnStmt.value != null){
+            value = evaluateExprStmt(returnStmt.value);
+        }
+        throw new Return(value);
+    }
+
+    private void evaluateFunctionStmt(Stmt.Function function) {
+        environment.define(function.name.lexeme, new Function(function));
     }
 
     private void evaluateForIterable(Stmt.ForIterable forIterableStmt){
@@ -202,6 +220,9 @@ class Interpreter extends RuntimeException {
             case Expr.Index index -> {
                 return evaluateIndexExpr(index);
             }
+            case Expr.Call call -> {
+                return evaluateCallExpr(call);
+            }
             default -> {
                 
             }
@@ -228,6 +249,30 @@ class Interpreter extends RuntimeException {
     }
 
     // Evaluators
+
+    private Object evaluateCallExpr(Expr.Call call){
+        Object calle = environment.get(call.identifier);
+        if(!(calle instanceof Function)){
+            throw new RuntimeError(call.identifier, "Can only call functions.");
+        }
+        Function function = (Function) calle;
+        Environment environment = new Environment(this.environment);
+        List<Token> params = function.params;
+        List<Expr> arguments = call.arguments;
+        if(params.size() != arguments.size()){
+            throw new RuntimeError(call.identifier, "Expected " + params.size() + " arguments but got " + arguments.size() + ".");
+        }
+        for (int i = 0; i < params.size(); i++){
+            environment.define(params.get(i).lexeme, evaluateExprStmt(arguments.get(i)));
+        }
+        
+        try {
+            evaluateBlockStmt(new Stmt.Block(function.body), environment);
+        } catch (Return returnValue) {
+            return returnValue.value;
+        }
+        return null;
+    }
 
     private Object evaluateIndexExpr(Expr.Index expr){
         Object value = environment.get(expr.identifier);

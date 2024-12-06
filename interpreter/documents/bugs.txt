@@ -1,4 +1,0 @@
-1. return must be used inside the function only
-2. calling the function that does not defined yet should throw error of not defining the function
-3. does not allow conitnuos multiple new lines in block stmt
-4. if count % 2: not working

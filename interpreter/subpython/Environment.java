@@ -46,4 +46,8 @@ class Environment {
         throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
     
+    @Override
+    public String toString() {
+        return values.toString();
+    }
 }

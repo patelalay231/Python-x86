@@ -13,6 +13,11 @@ abstract class Expr {
             this.operator = operator;
             this.right = right;
         }
+
+        @Override
+        public String toString() {
+            return left + " " + operator + " " + right;
+        }
     }
 
     static class Grouping extends Expr {
@@ -21,6 +26,7 @@ abstract class Expr {
         Grouping(Expr expression) {
             this.expression = expression;
         }
+
     }
 
     static class Literal extends Expr {
@@ -28,6 +34,11 @@ abstract class Expr {
 
         Literal(Object value) {
             this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value.toString();
         }
     }
 
@@ -57,6 +68,11 @@ abstract class Expr {
         Variable(Token name) {
             this.name = name;
         }
+
+        @Override
+        public String toString() {
+            return name.lexeme;
+        }
     }
 
     static class Logical extends Expr {
@@ -69,6 +85,7 @@ abstract class Expr {
             this.operator = operator;
             this.right = right;
         }
+        
     }
 
     static class List_ extends Expr {

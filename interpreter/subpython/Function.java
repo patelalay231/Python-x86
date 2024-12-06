@@ -11,5 +11,14 @@ class Function {
         this.name = function.name;
         this.params = function.params;
         this.body = function.body;
+    }
+
+    public int arity(){
+        return params.size();
+    }
+
+    @Override
+    public String toString() {
+        return "<fn " + name.lexeme + ">";
     }    
 }

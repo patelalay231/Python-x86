@@ -1,10 +1,11 @@
 package interpreter.subpython;
 
-class Return extends RuntimeException{
+class Return extends RuntimeException {
 
     final Object value;
 
     public Return(Object value) {
+        super(null, null, false, false);
         this.value = value;
     }
 

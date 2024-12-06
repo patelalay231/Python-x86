@@ -1,6 +1,7 @@
 package interpreter.subpython;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
@@ -45,22 +46,28 @@ public class Subpython {
         }
     }
 
-    public static void run(String source){
+    public static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
-
-        List<Stmt> statments = new Parser(tokens).parse();
-        if(hadError) return;
         
-        interpreter.interpreter(statments);
-        // Print the tokens.
-        // for (Token token : tokens) {
-        //     System.out.println(token);
-        // }
+        // Write tokens to a file.
+        try (FileWriter fileWriter = new FileWriter("tokens.txt")) {
+            for (Token token : tokens) {
+                fileWriter.write(token.toString() + System.lineSeparator());
+            }
+        } catch (IOException ex) {
+            System.err.println("Error writing tokens to file: " + ex.getMessage());
+        }
+        
+        // Parse the tokens into statements.
+        List<Stmt> statements = new Parser(tokens).parse();
+        if (hadError) return;
+        
+        // Interpret the statements.
+        interpreter.interpreter(statements);
 
-        // Print the AST.
-        // System.out.println(new AstPrinter().print(expression));
     }
+
 
     static void error(int line, String message) {
         report(line, "", message);

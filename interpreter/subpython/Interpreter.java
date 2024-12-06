@@ -6,7 +6,8 @@ import java.util.List;
 
 class Interpreter extends RuntimeException { 
 
-    private Environment environment = new Environment();
+    final Environment global = new Environment();
+    private Environment environment = global;
 
     public void interpreter(List<Stmt> statments){
         try{
@@ -43,35 +44,19 @@ class Interpreter extends RuntimeException {
     }
 
     public void evaluate(Stmt stmt) {
-        if(stmt instanceof Stmt.Expression expression){
-            evaluateExprStmt(expression.expression);
-        }
-        else if(stmt instanceof Stmt.Print print){
-            evaluatePrintStmt(print.expression);
-        }
-        else if(stmt instanceof Stmt.Assignment assignment){
-            evaluateAssignStmt(assignment);
-        }
-        else if(stmt instanceof Stmt.Block block){
-            evaluateBlockStmt(block,new Environment(environment));
-        }
-        else if(stmt instanceof Stmt.If ifStmt){
-            evaluateIfStmt(ifStmt);
-        }
-        else if(stmt instanceof Stmt.While whileStmt){
-            evaluateWhileStmt(whileStmt);
-        }
-        else if(stmt instanceof Stmt.For forStmt){
-            evaluateForStmt(forStmt);
-        }
-        else if(stmt instanceof Stmt.ForIterable forIterable){
-            evaluateForIterable(forIterable);
-        }
-        else if(stmt instanceof Stmt.Function function){
-            evaluateFunctionStmt(function);
-        }
-        else if(stmt instanceof Stmt.Return returnStmt){
-            evaluateReturnStmt(returnStmt);
+        switch (stmt) {
+            case Stmt.Expression expression -> evaluateExprStmt(expression.expression);
+            case Stmt.Print print -> evaluatePrintStmt(print.expression);
+            case Stmt.Assignment assignment -> evaluateAssignStmt(assignment);
+            case Stmt.Block block -> evaluateBlockStmt(block,new Environment(environment));
+            case Stmt.If ifStmt -> evaluateIfStmt(ifStmt);
+            case Stmt.While whileStmt -> evaluateWhileStmt(whileStmt);
+            case Stmt.For forStmt -> evaluateForStmt(forStmt);
+            case Stmt.ForIterable forIterable -> evaluateForIterable(forIterable);
+            case Stmt.Function function -> evaluateFunctionStmt(function);
+            case Stmt.Return returnStmt -> evaluateReturnStmt(returnStmt);
+            default -> {
+            }
         }
     }
 
@@ -83,8 +68,9 @@ class Interpreter extends RuntimeException {
         throw new Return(value);
     }
 
-    private void evaluateFunctionStmt(Stmt.Function function) {
-        environment.define(function.name.lexeme, new Function(function));
+    private void evaluateFunctionStmt(Stmt.Function stmt) {
+        Function function = new Function(stmt);
+        environment.define(function.name.lexeme, function);
     }
 
     private void evaluateForIterable(Stmt.ForIterable forIterableStmt){
@@ -95,16 +81,20 @@ class Interpreter extends RuntimeException {
             throw new RuntimeError(forIterableStmt.name, "Only lists and strings can be iterated over.");
         }
 
-        if(iterable instanceof List<?> list){
-            for (Object element : list){
-                environment.define(name, element);
-                evaluate(forIterableStmt.body);
+        switch (iterable) {
+            case List<?> list -> {
+                for (Object element : list){
+                    environment.define(name, element);
+                    evaluate(forIterableStmt.body);
+                }
             }
-        }
-        else if(iterable instanceof String string){
-            for (int i = 0; i < string.length(); i++){
-                environment.define(name, string.charAt(i));
-                evaluate(forIterableStmt.body);
+            case String string -> {
+                for (int i = 0; i < string.length(); i++){
+                    environment.define(name, string.charAt(i));
+                    evaluate(forIterableStmt.body);
+                }
+            }
+            default -> {
             }
         }
     }
@@ -234,6 +224,7 @@ class Interpreter extends RuntimeException {
     private boolean isTruthy(Object right) {
         if (right == null) return false;
         if (right instanceof Boolean) return (boolean) right;
+        if (right instanceof Double) return (double) right != 0;
         return true;
     }
     
@@ -251,23 +242,19 @@ class Interpreter extends RuntimeException {
     // Evaluators
 
     private Object evaluateCallExpr(Expr.Call call){
+        Environment localEnvironment = new Environment(global);
         Object calle = environment.get(call.identifier);
-        if(!(calle instanceof Function)){
-            throw new RuntimeError(call.identifier, "Can only call functions.");
-        }
         Function function = (Function) calle;
-        Environment environment = new Environment(this.environment);
         List<Token> params = function.params;
         List<Expr> arguments = call.arguments;
-        if(params.size() != arguments.size()){
-            throw new RuntimeError(call.identifier, "Expected " + params.size() + " arguments but got " + arguments.size() + ".");
+        if(function.arity() != arguments.size()){
+            throw new RuntimeError(call.identifier, "Expected " + function.arity() + " arguments but got " + arguments.size() + ".");
         }
-        for (int i = 0; i < params.size(); i++){
-            environment.define(params.get(i).lexeme, evaluateExprStmt(arguments.get(i)));
+        for (int i = 0; i < function.arity(); i++){
+            localEnvironment.define(params.get(i).lexeme, evaluateExprStmt(arguments.get(i)));
         }
-        
         try {
-            evaluateBlockStmt(new Stmt.Block(function.body), environment);
+            evaluateBlockStmt(new Stmt.Block(function.body), localEnvironment);
         } catch (Return returnValue) {
             return returnValue.value;
         }

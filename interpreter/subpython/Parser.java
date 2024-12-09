@@ -264,10 +264,23 @@ class Parser {
         return new Stmt.Expression(expr);
     }
 
-    // expression → assignment | list;
+    // expression → assignment | list | tuple;
     private Expr expression() {
         if(match(LEFT_BRACKET)) return list();
+        if(match(LEFT_PAREN)) return tuple();
         return assignment();
+    }
+
+    // tuple -> LEFT_PAREN ( expression (COMMA expression)* )? RIGHT_PAREN;
+    private Expr tuple(){
+        List<Expr> elements = new ArrayList<>();
+        if(!check(RIGHT_PAREN)){
+            do{
+                elements.add(expression());
+            } while(match(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after tuple elements.");
+        return new Expr.Tuple_(elements);
     }
 
     // list -> LEFT_BRACKET ( expression (COMMA expression)* )? RIGHT_BRACKET;
@@ -292,7 +305,7 @@ class Parser {
 
             if (expr instanceof Expr.Variable) {
                 Token name = ((Expr.Variable) expr).name;
-                return new Expr.Assignment(name, value);
+                return new Expr.Assignment(name, value,null);
             }
 
             throw error(equals, "Invalid assignment target.");
@@ -424,6 +437,11 @@ class Parser {
                     }
                 }
                 consume(RIGHT_BRACKET, "Expect ']' after list index.");
+                if (match(EQUAL)) {
+                    // Handle assignment to the list element
+                    Expr value = expression();
+                    return new Expr.Assignment(identifier, value, start);
+                }
                 return new Expr.Index(identifier, start, end, step);
             }
             if (match(LEFT_PAREN)) {

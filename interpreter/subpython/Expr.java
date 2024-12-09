@@ -13,11 +13,6 @@ abstract class Expr {
             this.operator = operator;
             this.right = right;
         }
-
-        @Override
-        public String toString() {
-            return left + " " + operator + " " + right;
-        }
     }
 
     static class Grouping extends Expr {
@@ -26,7 +21,6 @@ abstract class Expr {
         Grouping(Expr expression) {
             this.expression = expression;
         }
-
     }
 
     static class Literal extends Expr {
@@ -34,11 +28,6 @@ abstract class Expr {
 
         Literal(Object value) {
             this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value.toString();
         }
     }
 
@@ -55,10 +44,12 @@ abstract class Expr {
     static class Assignment extends Expr {
         final Token name;
         final Expr value;
+        final Expr index;
 
-        Assignment(Token name, Expr value) {
+        Assignment(Token name, Expr value, Expr index) {
             this.name = name;
             this.value = value;
+            this.index = index;
         }
     }
 
@@ -67,11 +58,6 @@ abstract class Expr {
 
         Variable(Token name) {
             this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name.lexeme;
         }
     }
 
@@ -85,13 +71,20 @@ abstract class Expr {
             this.operator = operator;
             this.right = right;
         }
-        
     }
 
     static class List_ extends Expr {
         final List<Expr> elements;
 
         List_(List<Expr> elements) {
+            this.elements = elements;
+        }
+    }
+
+    static class Tuple_ extends Expr {
+        final List<Expr> elements;
+
+        Tuple_(List<Expr> elements) {
             this.elements = elements;
         }
     }

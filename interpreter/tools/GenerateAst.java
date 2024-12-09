@@ -18,10 +18,11 @@ public class GenerateAst {
             "Grouping : Expr expression",
             "Literal  : Object value",
             "Unary    : Token operator, Expr right",
-            "Assignment   : Token name, Expr value",
+            "Assignment   : Token name, Expr value, Expr index",
             "Variable : Token name",
             "Logical  : Expr left, Token operator, Expr right",
-            "List_    : List<Expr> elements",
+            "List_     : List<Expr> elements",
+            "Tuple_    : List<Expr> elements",
             "Index    : Token identifier, Expr start, Expr end, Expr step",
             "Call     : Token identifier, List<Expr> arguments"
         ));

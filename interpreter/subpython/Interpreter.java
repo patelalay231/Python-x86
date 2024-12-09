@@ -177,6 +177,41 @@ class Interpreter extends RuntimeException {
 
     private Object evaluateAssignStmt(Expr.Assignment expr) {
         Object value = evaluateExprStmt(expr.value); // Recursively evaluate RHS
+        if(expr.index != null){
+            Object index = evaluateExprStmt(expr.index);
+            Object variable = environment.get(expr.name);
+            if (variable instanceof List<?> list) {
+                if (!(index instanceof Double)) {
+                    throw new RuntimeError(expr.name, "Index must be a number.");
+                }
+                int i = ((Double) index).intValue();
+                if (i < 0 || i >= list.size()) {
+                    throw new RuntimeError(expr.name, "Index out of bounds.");
+                }
+                
+                // Update the list without casting
+                @SuppressWarnings("unchecked")
+                List<Object> typedList = (List<Object>) list;
+                typedList.set(i, value);
+                return value;
+            } else if (variable instanceof String string) {
+                if(((String)value).length() != 1){
+                    throw new RuntimeError(expr.name, "Assignment to string index must be a single character.");
+                }
+                if (!(index instanceof Double)) {
+                    throw new RuntimeError(expr.name, "Index must be a number.");
+                }
+                int i = ((Double) index).intValue();
+                if (i < 0 || i >= string.length()) {
+                    throw new RuntimeError(expr.name, "Index out of bounds.");
+                }
+
+                string = string.substring(0, i) + value + string.substring(i + 1);
+                environment.define(expr.name.lexeme, string);
+                return string;
+            }
+
+        }
         environment.define(expr.name.lexeme, value); // Store the evaluated value in environment
         return value;
     }
@@ -206,6 +241,9 @@ class Interpreter extends RuntimeException {
             }
             case Expr.List_ list -> {
                 return evaluateListExpr(list);
+            }
+            case Expr.Tuple_ tuple -> {
+                return evaluateTupleExpr(tuple);
             }
             case Expr.Index index -> {
                 return evaluateIndexExpr(index);
@@ -240,6 +278,16 @@ class Interpreter extends RuntimeException {
     }
 
     // Evaluators
+    
+
+    private Object evaluateTupleExpr(Expr.Tuple_ tuple){
+        List<Object> evalutedElements = new ArrayList<>();
+
+        for (Expr element : (List<Expr>) tuple.elements){
+            evalutedElements.add(evaluateExprStmt(element));
+        }
+        return evalutedElements;
+    }
 
     private Object evaluateCallExpr(Expr.Call call){
         Environment localEnvironment = new Environment(global);
@@ -306,6 +354,9 @@ class Interpreter extends RuntimeException {
             }
             return subString.toString();
         }
+        // else if(value instanceof Double){
+        //     throw new RuntimeError(expr.identifier, "Cannot index a number.");
+        // }
         return null;
     }
 
